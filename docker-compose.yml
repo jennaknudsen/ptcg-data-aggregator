@@ -1,0 +1,49 @@
+# create two images, node and mongo
+services:
+  node:
+    build:
+      context: .
+      target: node-img
+    ports:
+      - 3000:3000
+    image: node-img
+    container_name: node-container
+    networks:
+      - app-network
+    environment:
+      - DB_HOSTNAME=postgres-container
+    stdin_open: true  # docker run -i
+    tty: true         # docker run -t
+  postgres:
+    # just pull the Postgres image
+    image: postgres:latest
+    networks:
+      - app-network
+    container_name: postgres-container
+    # start this AFTER node img
+    depends_on:
+      - node
+    environment:
+      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    stdin_open: true  # docker run -i
+    tty: true         # docker run -t
+  dotnet-sdk:
+    # pulls dotnet sdk 9
+    image: mcr.microsoft.com/dotnet/sdk:9.0
+    container_name: dotnet-sdk-container
+    stdin_open: true
+    tty: true
+  dotnet-aspnet:
+    # pulls aspnet 9 runtime
+    image: mcr.microsoft.com/dotnet/aspnet:9.0
+    networks:
+      - app-network
+    container_name: dotnet-aspnet-container
+    stdin_open: true
+    tty: true
+
+# connect all containers to this network
+networks:
+  app-network:
+    name: app-network
