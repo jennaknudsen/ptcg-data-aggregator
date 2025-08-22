@@ -17,6 +17,8 @@ services:
   postgres:
     # just pull the Postgres image
     image: postgres:latest
+    ports:
+      - ${POSTGRES_PORT}:5432
     networks:
       - app-network
     container_name: postgres-container
@@ -42,6 +44,21 @@ services:
     container_name: dotnet-aspnet-container
     stdin_open: true
     tty: true
+  pgadmin:
+    # only run this in dev
+    # docker-compose --profile dev up
+    image: dpage/pgadmin4:latest
+    ports:
+      - ${PGADMIN_PORT}:80
+    container_name: pgadmin-container
+    stdin_open: true
+    tty: true
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+    profiles:
+      - dev
+
 
 # connect all containers to this network
 networks:
